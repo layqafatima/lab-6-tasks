@@ -1,0 +1,146 @@
+#include<iostream>
+#include <vector>
+using namespace std;
+
+class BankAccount{
+	protected:
+	int accountNumber;
+	double balance;
+    public:
+    	BankAccount(int accountnumber,double bal):accountNumber(accountnumber),balance(bal){
+		}
+	void deposit(double amount){
+		balance+=amount;
+		cout<<"Amount deposited.New balance is "<<balance<<endl;
+	}
+	void withdraw(double amount){
+		if(balance>=amount){
+		balance-=amount;
+		cout<<"Amount withdrawn.New balance is "<<balance<<endl;
+	}
+	else{
+		cout<<"Insufficient balance"<<endl;
+	}
+}
+	void display(){
+		cout<<"Account Number: "<<accountNumber<<" Balance: "<<balance<<endl;
+	}
+};
+class SavingsAccount: public BankAccount{
+	double interestrate;
+	public:
+		SavingsAccount(int accountnumber,double bal,double ir):BankAccount(accountnumber, bal){
+			interestrate=ir;
+		}
+		void applyInterest(){
+			double interest=balance*interestrate/100;
+			balance+=interest;
+			cout<<"Interest applied. New balance is: "<<balance<<endl;
+		}
+		
+};
+class CheckingAccount: public BankAccount{
+	double overdraftlimit;
+	public:
+	CheckingAccount(int accountnumber,double bal,double limit):BankAccount(accountnumber, bal){
+		overdraftlimit=limit;
+	}
+	void withdraw(double amount){
+		if(balance+overdraftlimit>=amount){
+			balance-=amount;
+			cout<<"Withdrawl successfull.New balance is "<<balance<<endl;
+		}
+		else{
+			cout<<"Overdraft Limit Exceeded for Account:"<<endl;
+		}
+	}
+};
+class BusinessAccount: public BankAccount{
+	double taxrate;
+	public:
+		BusinessAccount(int accountnumber,double bal,double rate):BankAccount(accountnumber, bal){
+			taxrate=rate;
+		}
+		void deposit(int amount){
+			double tax=amount*taxrate/100;
+			balance-=tax;
+			cout<<"Tax deducted. New Balance is "<<balance<<endl;
+		}
+};
+class User{
+	protected:
+		string Username;
+	public:
+		User(string name):Username(name){
+		}
+		virtual void accessaccount(BankAccount &acc)=0;
+};
+class Customer: public User{
+	public:
+		Customer(string name):User(name){
+		}
+		void accessaccount(BankAccount &acc){
+			acc.display();
+			acc.deposit(100);
+			acc.withdraw(50);
+		}
+};
+class Employee: public User{
+	public:
+		Employee(string empname): User(empname){
+		}
+		virtual void manageAccount(BankAccount &acc)=0;
+};
+class Teller: public Employee{
+	public:
+		Teller(string empname): Employee(empname){
+		}
+		void accessaccount(BankAccount &acc){
+			acc.display();
+			acc.deposit(200);
+			acc.withdraw(100);
+		}
+		void manageAccount(BankAccount &acc){
+			cout<<"Account is freezed"<<endl;
+		}
+};
+class Manager: public Employee{
+	public:
+		Manager(string empname):Employee(empname){
+		}
+	 void accessaccount(BankAccount &acc) {
+        cout << "Manager " << Username << " reviewing account:\n";
+        acc.display();
+    }
+
+    void manageAccount(BankAccount &acc) {
+        cout << "Manager " << Username << " is overriding account limits!\n";
+    }
+};
+int main(){
+	SavingsAccount sa(123, 1000, 5);
+    CheckingAccount ca(456, 500, 200);
+    BusinessAccount ba(789, 2000, 10);
+    
+    vector<BankAccount*>accounts={&sa,&ca,&ba};
+    for(int i=0;i<accounts.size();i++){
+    	accounts[i]->display();
+    	accounts[i]->deposit(500);
+    	accounts[i]->withdraw(700);
+	}
+	sa.applyInterest();
+	ca.withdraw(1000);
+	ba.deposit(1000);
+	cout<<"User operations"<<endl;
+	
+	 Customer cust("Alice");
+    Teller teller("Bob");
+    Manager mgr("Charlie");
+    
+    cust.accessaccount(sa);
+    teller.accessaccount(ca);
+    teller.manageAccount(ca);
+    mgr.accessaccount(ba);
+    mgr.manageAccount(ba);
+return 0;
+}
