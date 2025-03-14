@@ -1,0 +1,80 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Student {
+protected:
+    int id;
+    string name;
+
+public:
+    void getStudentDetails() {
+        cout << "Enter Student ID: ";
+        cin >> id;
+        cin.ignore();
+        cout << "Enter Student Name: ";
+        getline(cin, name);
+    }
+    
+    void displayStudentDetails() const {
+        cout << "\nStudent Information:\n";
+        cout << "ID: " << id << "\nName: " << name << endl;
+    }
+};
+
+class Marks : public Student {
+protected:
+    int oop, pf, ds, db;
+
+public:
+    void getMarks() {
+        cout << "Enter marks for OOP, PF, DS, and DB (separated by spaces): ";
+        cin >> oop >> pf >> ds >> db;
+    }
+    
+    void displayMarks() const {
+        cout << "\nMarks Obtained:\n";
+        cout << "OOP: " << oop << "\nPF: " << pf << "\nDS: " << ds << "\nDB: " << db << endl;
+    }
+    
+    int getTotalMarks() const {
+        return oop + pf + ds + db;
+    }
+};
+
+class Result : public Marks {
+private:
+    int totalMarks;
+    double avgMarks;
+
+public:
+    void calculateResult() {
+        totalMarks = getTotalMarks();
+        avgMarks = totalMarks / 4.0;
+    }
+    
+    void displayResult() const {
+        cout << "\nFinal Result:\n";
+        cout << "Total Marks: " << totalMarks << "\nAverage Marks: " << avgMarks << endl;
+    }
+};
+
+int main() {
+    Result student;
+    
+    cout << "\n--- Enter Student Details ---\n";
+    student.getStudentDetails();
+    
+    cout << "\n--- Enter Marks ---\n";
+    student.getMarks();
+    
+    student.calculateResult();
+    
+    cout << "\n--- Student Report ---\n";
+    student.displayStudentDetails();
+    student.displayMarks();
+    student.displayResult();
+    
+    return 0;
+}
