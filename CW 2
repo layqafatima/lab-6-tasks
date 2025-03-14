@@ -1,0 +1,88 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class MediaFile {
+protected:
+    string fileName;
+    int fileSizeKB;
+
+public:
+    MediaFile(const string& name, int size) : fileName(name), fileSizeKB(size) {}
+
+    virtual void play() const { cout << "Playing: " << fileName << endl; }
+    virtual void stop() const { cout << "Stopping: " << fileName << endl; }
+
+    virtual ~MediaFile() {}
+};
+
+class VisualMedia : virtual public MediaFile {
+protected:
+    string screenResolution;
+
+public:
+    VisualMedia(const string& name, int size, const string& resolution)
+        : MediaFile(name, size), screenResolution(resolution) {}
+
+    virtual void show() const { cout << "Resolution: " << screenResolution << endl; }
+};
+
+class AudioMedia : virtual public MediaFile {
+protected:
+    int audioSampleRate;
+
+public:
+    AudioMedia(const string& name, int size, int rate)
+        : MediaFile(name, size), audioSampleRate(rate) {}
+
+    virtual void playSound() const { cout << "Audio Sample Rate: " << audioSampleRate << " Hz" << endl; }
+};
+
+class ImageFile : public VisualMedia {
+public:
+    ImageFile(const string& name, int size, const string& resolution)
+        : MediaFile(name, size), VisualMedia(name, size, resolution) {}
+
+    void play() const { cout << "Cannot play image: " << fileName << endl; }
+};
+
+class AudioFile : public AudioMedia {
+public:
+    AudioFile(const string& name, int size, int rate)
+        : MediaFile(name, size), AudioMedia(name, size, rate) {}
+
+    void play() const { playSound(); }
+};
+
+class VideoFile : public VisualMedia, public AudioMedia {
+public:
+    VideoFile(const string& name, int size, const string& resolution, int rate)
+        : MediaFile(name, size), VisualMedia(name, size, resolution), AudioMedia(name, size, rate) {}
+
+    void play() const {
+        cout << "Playing video: " << fileName << endl;
+        show();
+        playSound();
+    }
+};
+
+int main() {
+    MediaFile* mediaCollection[] = {
+        new ImageFile("photo.jpg", 2048, "1920x1080"),
+        new AudioFile("music.mp3", 5000, 44100),
+        new VideoFile("film.mp4", 15000, "1920x1080", 48000)
+    };
+
+    for (MediaFile* media : mediaCollection) {
+        media->play();
+        media->stop();
+        cout << "---------------------\n";
+    }
+
+    for (MediaFile* media : mediaCollection) {
+        delete media;
+    }
+
+    return 0;
+}
