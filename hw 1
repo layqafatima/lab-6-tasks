@@ -1,0 +1,59 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Book {
+protected:
+    string genre;
+
+public:
+    Book(const string& genreType) : genre(genreType) {}
+    virtual void showDetails() const = 0;
+    virtual ~Book() {}
+};
+
+class MysteryBook : public Book {
+private:
+    string bookTitle;
+    string bookAuthor;
+
+public:
+    MysteryBook(const string& title, const string& author)
+        : Book("Mystery"), bookTitle(title), bookAuthor(author) {}
+
+    void showDetails() const override {
+        cout << "Genre: " << genre << "\nTitle: " << bookTitle << "\nAuthor: " << bookAuthor << "\n" << endl;
+    }
+};
+
+class NovelBook : public Book {
+private:
+    string bookTitle;
+    string bookAuthor;
+
+public:
+    NovelBook(const string& title, const string& author)
+        : Book("Novel"), bookTitle(title), bookAuthor(author) {}
+
+    void showDetails() const override {
+        cout << "Genre: " << genre << "\nTitle: " << bookTitle << "\nAuthor: " << bookAuthor << "\n" << endl;
+    }
+};
+
+int main() {
+    Book* library[] = {
+        new MysteryBook("The Hound of the Baskervilles", "Arthur Conan Doyle"),
+        new NovelBook("Pride and Prejudice", "Jane Austen")
+    };
+
+    for (const auto& book : library) {
+        book->showDetails();
+    }
+
+    for (const auto& book : library) {
+        delete book;
+    }
+
+    return 0;
+}
