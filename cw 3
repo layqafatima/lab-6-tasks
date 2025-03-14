@@ -1,0 +1,138 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Employee {
+protected:
+    int empId;
+    string empName;
+public:
+    Employee(int id, string name) : empId(id), empName(name) {}
+    virtual void showInfo() const {
+        cout << "ID: " << empId << " | Name: " << empName << endl;
+    }
+    virtual ~Employee() {}
+};
+
+class IOrderTaker {
+public:
+    virtual void takeOrder(const string &orderName) = 0;
+    virtual ~IOrderTaker() {}
+};
+
+class IOrderPreparer {
+public:
+    virtual void prepareOrder(const string &orderName) = 0;
+    virtual ~IOrderPreparer() {}
+};
+
+class IBiller {
+public:
+    virtual void printBill(const vector<string> &orderList) = 0;
+    virtual ~IBiller() {}
+};
+
+class Waiter : public Employee, public IOrderTaker {
+public:
+    Waiter(int id, string name) : Employee(id, name) {}
+    void takeOrder(const string &orderName) override {
+        cout << empName << " noted down an order: " << orderName << endl;
+    }
+};
+
+class Chef : public Employee, public IOrderPreparer {
+public:
+    Chef(int id, string name) : Employee(id, name) {}
+    void prepareOrder(const string &orderName) override {
+        cout << empName << " is preparing: " << orderName << endl;
+    }
+};
+
+class Cashier : public Employee, public IBiller {
+public:
+    Cashier(int id, string name) : Employee(id, name) {}
+    void printBill(const vector<string> &orderList) override {
+        cout << empName << " is billing for: ";
+        for (const auto &order : orderList)
+            cout << order << " ";
+        cout << endl;
+    }
+};
+
+class Manager : public Employee, public IOrderTaker, public IBiller {
+public:
+    Manager(int id, string name) : Employee(id, name) {}
+    void takeOrder(const string &orderName) override {
+        cout << empName << " (Manager) received an order: " << orderName << endl;
+    }
+    void printBill(const vector<string> &orderList) override {
+        cout << empName << " (Manager) finalized the bill for: ";
+        for (const auto &order : orderList)
+            cout << order << " ";
+        cout << endl;
+    }
+};
+
+class Menu {
+protected:
+    vector<pair<string, double>> menuItems;
+public:
+    virtual void addMenuItem(const string &itemName, double price) {
+        menuItems.emplace_back(itemName, price);
+    }
+    virtual double calculateTotal() const = 0;
+    virtual ~Menu() {}
+};
+
+class FoodMenu : public Menu {
+public:
+    double calculateTotal() const override {
+        double totalCost = 0;
+        for (const auto &item : menuItems)
+            totalCost += item.second;
+        return totalCost;
+    }
+};
+
+class BeverageMenu : public Menu {
+public:
+    double calculateTotal() const override {
+        double totalCost = 0;
+        for (const auto &item : menuItems)
+            totalCost += item.second * 1.1;
+        return totalCost;
+    }
+};
+
+int main() {
+    Waiter waiter1(101, "John");
+    Chef chef1(201, "Emma");
+    Cashier cashier1(301, "Alice");
+    Manager manager1(401, "Michael");
+    
+    vector<IOrderTaker*> orderHandlers = {&waiter1, &manager1};
+    vector<IOrderPreparer*> kitchenStaff = {&chef1};
+    vector<IBiller*> billingStaff = {&cashier1, &manager1};
+    
+    orderHandlers[0]->takeOrder("Burger");
+    orderHandlers[1]->takeOrder("Pasta");
+    
+    kitchenStaff[0]->prepareOrder("Burger");
+    
+    vector<string> orderQueue = {"Burger", "Pasta"};
+    billingStaff[0]->printBill(orderQueue);
+    
+    FoodMenu foodItems;
+    foodItems.addMenuItem("Burger", 5.99);
+    foodItems.addMenuItem("Pasta", 8.99);
+    
+    BeverageMenu drinkItems;
+    drinkItems.addMenuItem("Coke", 2.50);
+    drinkItems.addMenuItem("Juice", 3.00);
+    
+    cout << "Total for Food: $" << foodItems.calculateTotal() << endl;
+    cout << "Total for Drinks (incl. tax): $" << drinkItems.calculateTotal() << endl;
+    
+    return 0;
+}
