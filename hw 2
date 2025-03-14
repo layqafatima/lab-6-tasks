@@ -1,0 +1,85 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Vehicle {
+protected:
+    double price;
+
+public:
+    Vehicle(double p) : price(p) {}
+    virtual void displayInfo() const = 0;
+    virtual ~Vehicle() {}
+};
+
+class Car : public Vehicle {
+protected:
+    int seats;
+    int doors;
+    string fuel;
+
+public:
+    Car(double p, int seatCount, int doorCount, const string& fuelType)
+        : Vehicle(p), seats(seatCount), doors(doorCount), fuel(fuelType) {}
+};
+
+class Motorcycle : public Vehicle {
+protected:
+    int cylinderCount;
+    int gearCount;
+    int wheelCount;
+
+public:
+    Motorcycle(double p, int cylinders, int gears, int wheels)
+        : Vehicle(p), cylinderCount(cylinders), gearCount(gears), wheelCount(wheels) {}
+};
+
+class Audi : public Car {
+private:
+    string model;
+
+public:
+    Audi(double p, int seatCount, int doorCount, const string& fuelType, const string& modelName)
+        : Car(p, seatCount, doorCount, fuelType), model(modelName) {}
+
+    void displayInfo() const override {
+        cout << "Audi Details:\n";
+        cout << "Price: $" << price << "\nSeats: " << seats
+             << "\nDoors: " << doors << "\nFuel: " << fuel
+             << "\nModel: " << model << "\n" << endl;
+    }
+};
+
+class Yamaha : public Motorcycle {
+private:
+    string make;
+
+public:
+    Yamaha(double p, int cylinders, int gears, int wheels, const string& makeType)
+        : Motorcycle(p, cylinders, gears, wheels), make(makeType) {}
+
+    void displayInfo() const override {
+        cout << "Yamaha Details:\n";
+        cout << "Price: $" << price << "\nCylinders: " << cylinderCount
+             << "\nGears: " << gearCount << "\nWheels: " << wheelCount
+             << "\nMake: " << make << "\n" << endl;
+    }
+};
+
+int main() {
+    Vehicle* showroom[] = {
+        new Audi(50000, 5, 4, "Petrol", "Q5"),
+        new Yamaha(15000, 2, 6, 2, "R1")
+    };
+
+    for (const auto& vehicle : showroom) {
+        vehicle->displayInfo();
+    }
+
+    for (const auto& vehicle : showroom) {
+        delete vehicle;
+    }
+
+    return 0;
+}
